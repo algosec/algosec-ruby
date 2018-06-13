@@ -1,0 +1,524 @@
+require_relative './../../spec_helper'
+
+RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
+  include_context 'shared context'
+  describe '#login#' do
+    it 'makes a POST rest call' do
+      fake_response = FakeResponse.new
+      expect(@client).to receive(:rest_post).with('/BusinessFlow/rest/v1/login').and_return(fake_response)
+      expect(@client).to receive(:response_handler).with(fake_response)
+      @client.login
+    end
+  end
+  # rubocop:disable Style/NumericLiterals
+  describe '#get_application_flows#' do
+    it 'makes a GET rest call' do
+      body = [
+        {
+          'comment' => '',
+          'connectivityStatus' => nil,
+          'createdDate' => 1520353392998,
+          'destinations' => [
+            {
+              'createdDate' => 1518136428537,
+              'ipAddresses' => ['192.168.2.2'],
+              'lastUpdateDate' => 1518136428539,
+              'name' => '192.168.2.2',
+              'objectID' => 13293,
+              'objectType' => 'Host',
+              'origin' => 'Imported from file',
+              'revisionID' => 13293
+            }],
+          'flowID' => 1477,
+          'flowType' => 'APPLICATION_FLOW',
+          'lastUpdateDate' => 1520353393013,
+          'name' => 'flow-from-api-1',
+          'networkApplications' => [{ 'name' => 'Any', 'revisionID' => 0 }],
+          'networkUsers' => [{ 'id' => 0, 'name' => 'Any' }],
+          'services' => [
+            {
+              'createdDate' => 1518047934038,
+              'lastUpdateDate' => 1518047934048,
+              'name' => 'TCP/200',
+              'origin' => 'Imported from file',
+              'revisionID' => 15069,
+              'serviceID' => 15069,
+              'services' => ['TCP/200']
+            }],
+          'sources' => [
+            {
+              'createdDate' => 1518136372407,
+              'ipAddresses' => ['192.168.2.1'],
+              'lastUpdateDate' => 1518136372410,
+              'name' => '192.168.2.1',
+              'objectID' => 13292,
+              'objectType' => 'Host',
+              'origin' => 'Imported from file',
+              'revisionID' => 13292
+            }
+          ]
+        }
+      ]
+      fake_response = FakeResponse.new(body)
+      expect(@client).to receive(:rest_get).with('/BusinessFlow/rest/v1/applications/app-revision-id/flows').and_return(fake_response)
+      flows = @client.get_application_flows('app-revision-id')
+      expect(flows).to eq(body)
+    end
+  end
+  describe '#get_application_flows_hash#' do
+    it 'convert the flows from server to hash from name to flow data' do
+      app_revision_id = anything
+      flow1 = {
+        'name' => 'flow1',
+        'data' => 'flow1-data'
+      }
+      flow2 = {
+        'name' => 'flow2',
+        'data' => 'flow2-data'
+      }
+      server_flows = [flow1, flow2]
+      expect(@client).to receive(:get_application_flows).with(app_revision_id).and_return(server_flows)
+      hash_flows = @client.get_application_flows_hash(app_revision_id)
+      expect(hash_flows).to eq('flow1' => flow1, 'flow2' => flow2)
+    end
+  end
+  describe '#delete_flow_by_id#' do
+    it 'makes a DELETE rest call' do
+      expect(@client).to receive(:rest_delete).with(
+        '/BusinessFlow/rest/v1/applications/app-revision-id/flows/flow-id'
+      ).and_return(FakeResponse.new)
+      ret_val = @client.delete_flow_by_id('app-revision-id', 'flow-id')
+      expect(ret_val).to eq(true)
+    end
+  end
+  describe '#get_flow_connectivity#' do
+    it 'makes a GET rest call' do
+      body = {
+        'flowId' => 1477,
+        'queryLink' => 'https://192.168.58.128/fa/query/results/#/work/ALL_FIREWALLS_query-3656/',
+        'status' => 'Pass'
+      }
+      fake_response = FakeResponse.new(body)
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/app-revision-id/flows/flow-id/check_connectivity'
+      ).and_return(fake_response)
+      flow_connectivity = @client.get_flow_connectivity('app-revision-id', 'flow-id')
+      expect(flow_connectivity).to eq(body)
+    end
+  end
+  describe '#create_application_flow#' do
+    it 'makes a POST rest call' do
+      new_flow = {
+        name: 'flow-name',
+        sources: [{ name: 'source1' }, { name: 'source2' }],
+        destinations: [{ name: 'dest1' }, { name: 'dest2' }],
+        users: %w(user1 user2),
+        network_applications: [{ name: 'app1' }, { name: 'app2' }],
+        services: [{ name: 'service1' }, { name: 'service2' }],
+        comment: 'Comment',
+        type: 'APPLICATION',
+        custom_fields: []
+      }
+      fake_response = FakeResponse.new([new_flow])
+      expect(@client).to receive(:create_missing_network_objects).with(%w(source1 source2 dest1 dest2))
+      expect(@client).to receive(:create_missing_services).with(%w(service1 service2))
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/app-revision-id/flows/new',
+        body: [new_flow]
+      ).and_return(fake_response)
+      ret_val = @client.create_application_flow(
+        'app-revision-id',
+        'flow-name',
+        %w(source1 source2),
+        %w(dest1 dest2),
+        %w(service1 service2),
+        %w(user1 user2),
+        %w(app1 app2),
+        'Comment'
+      )
+      expect(ret_val.to_json).to eq(new_flow.to_json)
+    end
+  end
+  describe '#get_app_revision_id_by_name#' do
+    it 'makes a GET rest call' do
+      app_revision_id = 410
+      body = { 'revisionID' => app_revision_id }
+      fake_response = FakeResponse.new(body)
+      expect(@client).to receive(:rest_get).with(
+        '/BusinessFlow/rest/v1/applications/name/application-name'
+      ).and_return(fake_response)
+      app_revision = @client.get_app_revision_id_by_name('application-name')
+      expect(app_revision).to eq(app_revision_id)
+    end
+  end
+  describe '#apply_application_draft#' do
+    it 'makes a POST rest call' do
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/app-revision-id/apply'
+      ).and_return(FakeResponse.new)
+      ret_val = @client.apply_application_draft('app-revision-id')
+      expect(ret_val).to eq(true)
+    end
+  end
+  describe '#create_network_service#' do
+    it 'makes a POST rest call' do
+      new_service = {
+        name: 'service-name',
+        content: [{ protocol: 'tcp', port: '123' }, { protocol: 'udp', port: '500' }]
+      }
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/network_services/new', body: new_service
+      ).and_return(FakeResponse.new)
+      ret_val = @client.create_network_service('service-name', [%w(tcp 123), %w(udp 500)])
+      expect(ret_val).to eq(true)
+    end
+  end
+  describe '#create_network_object#' do
+    it 'makes a POST rest call' do
+      new_action = {
+        type: 'Host',
+        name: 'object-name',
+        content: '192.168.1.1'
+      }
+
+      new_network_object = { 'objectID' => 123 }
+      fake_response = FakeResponse.new(new_network_object)
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/network_objects/new', body: new_action
+      ).and_return(fake_response)
+      ret_val = @client.create_network_object('Host', '192.168.1.1', 'object-name')
+      expect(ret_val).to eq(new_network_object)
+    end
+  end
+  describe '#get_application_flow_by_name#' do
+    it 'flow is found on the server' do
+      app_revision_id = 410
+      requested_flow = { 'name' => 'flow2' }
+      app_flows = [{ 'name' => 'flow1' }, requested_flow]
+      expect(@client).to receive(:get_application_flows).with(app_revision_id).and_return(app_flows)
+
+      flow = @client.get_application_flow_by_name(app_revision_id, 'flow2')
+      expect(flow).to eq(requested_flow)
+    end
+    it 'flow is not found on the server' do
+      app_revision_id = 410
+      app_flows = [{ 'name' => 'flow1' }, { 'name' => 'flow2' }]
+      expect(@client).to receive(:get_application_flows).with(app_revision_id).and_return(app_flows)
+      expect do
+        @client.get_application_flow_by_name(app_revision_id, 'flow3')
+      end.to raise_error(RuntimeError)
+    end
+  end
+  describe '#create_missing_network_objects#' do
+    it 'no object is created if it is found by search' do
+      object_name = '192.168.1.1'
+      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([anything])
+      created_objects = @client.create_missing_network_objects([object_name])
+      expect(created_objects).to eq([])
+    end
+    it 'only ip-like object names are being searched' do
+      object_name1 = '192.168.1.1'
+      object_name2 = 'businessflowNamedObject'
+      fake_created_object = { name: object_name1 }
+      expect(@client).to receive(:search_network_object).with(
+        object_name1,
+        ALGOSEC_SDK::NetworkObjectSearchType::EXACT
+      ).and_return([])
+      expect(@client).to receive(:create_network_object).with(
+        ALGOSEC_SDK::NetworkObjectType::HOST, object_name1, object_name1
+      ).and_return(fake_created_object)
+      created_objects = @client.create_missing_network_objects([object_name1, object_name2])
+      expect(created_objects).to eq([fake_created_object])
+    end
+    it 'create objects and fail due to unknown exception from server' do
+      object_name = '192.168.1.1'
+      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([])
+      expect(@client).to receive(:create_network_object).with(
+        ALGOSEC_SDK::NetworkObjectType::HOST, object_name, object_name
+      ).and_raise(ALGOSEC_SDK::BadRequest, 'Unknown Error')
+      expect do
+        @client.create_missing_network_objects([object_name])
+      end.to raise_error(ALGOSEC_SDK::BadRequest)
+    end
+    it 'only ip-like object names are created' do
+      object_name1 = '192.168.1.1'
+      object_name2 = 'businessflowNamedObject'
+      fake_created_object = { name: object_name1 }
+      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([])
+      expect(@client).to receive(:create_network_object).with(
+        ALGOSEC_SDK::NetworkObjectType::HOST, object_name1, object_name1
+      ).and_return(fake_created_object)
+      created_objects = @client.create_missing_network_objects([object_name1, object_name2])
+      expect(created_objects).to eq([fake_created_object])
+    end
+  end
+  describe '#create_missing_services#' do
+    it 'no error raised for already existing services' do
+      service_name = 'tcp/50'
+      already_exists_error = 'Service name already exists'
+      expect(@client).to receive(:create_network_service).with(
+        service_name, [%w(tcp 50)]
+      ).and_raise(ALGOSEC_SDK::BadRequest, already_exists_error)
+      created_services = @client.create_missing_services([service_name])
+      expect(created_services).to eq([])
+    end
+    it 'create service and fail due to unknown exception from server' do
+      service_name = 'tcp/50'
+      exc = ALGOSEC_SDK::BadRequest.new
+      expect(@client).to receive(:create_network_service).with(
+        service_name, [%w(tcp 50)]
+      ).and_raise(exc)
+      expect do
+        @client.create_missing_services([service_name])
+      end.to raise_error(exc)
+    end
+    it 'only protocol/port object names are created' do
+      service_name1 = 'tcp/50'
+      service_name2 = 'someServiceName'
+      fake_created_object = { name: service_name1 }
+      expect(@client).to receive(:create_network_service).with(
+        service_name1, [%w(tcp 50)]
+      ).and_return(fake_created_object)
+      created_objects = @client.create_missing_services([service_name1, service_name2])
+      expect(created_objects).to eq([fake_created_object])
+    end
+    describe '#plan_application_flows#' do
+      it 'There is nothing to change, new flows and flows on server are equal' do
+        new_app_flows = server_app_flows = { 'flow1' => {}, 'flow2' => {}, 'flow3' => {} }
+        expect(ALGOSEC_SDK::AreFlowsEqual).to receive(:flows_equal?).thrice.with({}, {}).and_return(true)
+
+        flows_to_delete, flows_to_create, flows_to_modify = @client.plan_application_flows(
+          server_app_flows,
+          new_app_flows
+        )
+        expect(flows_to_delete).to eq(Set.new)
+        expect(flows_to_create).to eq(Set.new)
+        expect(flows_to_modify).to eq(Set.new)
+      end
+      it 'There are flows to delete, flows to create, and flows that have changed' do
+        new_app_flows = { 'new-flow' => {}, 'modified-flow' => {} }
+        server_app_flows = {
+          'flow-that-will-be-deleted' => { flowID: 1 },
+          'modified-flow' => { flowID: 2 }
+        }
+        expect(ALGOSEC_SDK::AreFlowsEqual).to receive(:flows_equal?).with(
+          new_app_flows['modified-flow'], server_app_flows['modified-flow']
+        ).and_return(false)
+
+        flows_to_delete, flows_to_create, flows_to_modify = @client.plan_application_flows(
+          server_app_flows,
+          new_app_flows
+        )
+        expect(flows_to_delete).to eq(Set.new(%w(flow-that-will-be-deleted)))
+        expect(flows_to_create).to eq(Set.new(%w(new-flow)))
+        expect(flows_to_modify).to eq(Set.new(%w(modified-flow)))
+      end
+    end
+    describe '#implement_app_flows_plan#' do
+      it 'Application draft is applied when a flow is deleted' do
+        app_name = 'AppName'
+        fake_app_revision_id = 1500
+
+        new_app_flows = { 'new-flow' => {}, 'modified-flow' => {} }
+        server_app_flows = {
+          'flow-that-will-be-deleted' => { 'flowID' => 1 },
+          'modified-flow' => { 'flowID' => 2 }
+        }
+        flows_to_delete = Set.new(['flow-that-will-be-deleted'])
+        flows_to_create = Set.new([])
+        flows_to_modify = Set.new([])
+
+
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+        # App revision id is updated after a flow is deleted
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:delete_flow_by_id).with(
+          fake_app_revision_id,
+          server_app_flows['flow-that-will-be-deleted']['flowID']
+        )
+        # Use the app revision id that was updated after deletion
+        expect(@client).to receive(:apply_application_draft).with(fake_app_revision_id + 1)
+
+        @client.implement_app_flows_plan(
+          app_name,
+          new_app_flows,
+          server_app_flows,
+          flows_to_delete,
+          flows_to_create,
+          flows_to_modify
+        )
+      end
+      it 'Application draft is applied when a flow is created' do
+        app_name = 'AppName'
+        fake_app_revision_id = 1500
+
+        new_app_flows = {
+          'modified-flow' => {},
+          'new-flow' => {
+            'sources' => 'some-sources',
+            'destinations' => 'some-destinations',
+            'services' => 'some-services',
+            'users' => 'some-users',
+            'applications' => 'some-applications',
+            'comment' => 'some-comment'
+          }
+        }
+        server_app_flows = {
+          'flow-that-will-be-deleted' => { 'flowID' => 1 },
+          'modified-flow' => { 'flowID' => 2 }
+        }
+        flows_to_delete = Set.new([])
+        flows_to_create = Set.new(['new-flow'])
+        flows_to_modify = Set.new([])
+
+
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+        # App revision id is updated after a flow is created
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:create_application_flow).with(
+          fake_app_revision_id,
+          'new-flow',
+          new_app_flows['new-flow']['sources'],
+          new_app_flows['new-flow']['destinations'],
+          new_app_flows['new-flow']['services'],
+          new_app_flows['new-flow']['users'],
+          new_app_flows['new-flow']['applications'],
+          new_app_flows['new-flow']['comment']
+        )
+        expect(@client).to receive(:apply_application_draft).with(fake_app_revision_id + 1)
+
+        @client.implement_app_flows_plan(
+          app_name,
+          new_app_flows,
+          server_app_flows,
+          flows_to_delete,
+          flows_to_create,
+          flows_to_modify
+        )
+      end
+      it 'Application draft is not applied when there is no change' do
+        app_name = 'AppName'
+        fake_app_revision_id = 1500
+
+        new_app_flows = {}
+        server_app_flows = {}
+        flows_to_modify = flows_to_create = flows_to_delete = Set.new([])
+
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+        expect(@client).to receive(:apply_application_draft).never
+
+        @client.implement_app_flows_plan(
+          app_name,
+          new_app_flows,
+          server_app_flows,
+          flows_to_delete,
+          flows_to_create,
+          flows_to_modify
+        )
+      end
+      it 'flows to modify, are being deleted and then created' do
+        app_name = 'AppName'
+        fake_app_revision_id = 1500
+
+        new_app_flows = {
+          'modified-flow' => {
+            'sources' => 'some-sources',
+            'destinations' => 'some-destinations',
+            'services' => 'some-services',
+            'users' => 'some-users',
+            'applications' => 'some-applications',
+            'comment' => 'some-comment'
+          }
+        }
+        server_app_flows = {
+          'flow-that-will-be-deleted' => { 'flowID' => 1 },
+          'modified-flow' => { 'flowID' => 2 }
+        }
+        flows_to_delete = Set.new([])
+        flows_to_create = Set.new([])
+        flows_to_modify = Set.new(['modified-flow'])
+
+
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+        # App revision id is updated after a flow is deleted
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:delete_flow_by_id).with(
+          fake_app_revision_id,
+          server_app_flows['modified-flow']['flowID']
+        )
+
+        expect(@client).to receive(:create_application_flow).with(
+          fake_app_revision_id + 1,
+          'modified-flow',
+          new_app_flows['modified-flow']['sources'],
+          new_app_flows['modified-flow']['destinations'],
+          new_app_flows['modified-flow']['services'],
+          new_app_flows['modified-flow']['users'],
+          new_app_flows['modified-flow']['applications'],
+          new_app_flows['modified-flow']['comment']
+        )
+
+        # Use the app revision id that was updated after deletion
+        expect(@client).to receive(:apply_application_draft).with(fake_app_revision_id + 1)
+
+        @client.implement_app_flows_plan(
+          app_name,
+          new_app_flows,
+          server_app_flows,
+          flows_to_delete,
+          flows_to_create,
+          flows_to_modify
+        )
+      end
+      describe '#define_application_flows#' do
+        it 'plan, implement flows and return the current flows defined on the server' do
+          app_name = 'AppName'
+          fake_app_revision_id = 1500
+
+          new_app_flows = { 'flow2' => {}, 'flow3' => {} }
+          new_server_app_flows = {
+            'flow2' => { 'flowID' => 2 },
+            'flow3' => { 'flowID' => 3 }
+          }
+          flows_from_server = {
+            'flow1' => { 'flowID' => 1, 'name' => 'flow1' },
+            'flow2' => { 'flowID' => 2, 'name' => 'flow2' }
+          }
+
+          flows_to_delete = Set.new(['flow1'])
+          flows_to_modify = Set.new(['flow2'])
+          flows_to_create = Set.new(['flow3'])
+
+          expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+          # App revision id is updated after a flow is deleted
+          expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+
+          expect(@client).to receive(:get_application_flows).with(
+            fake_app_revision_id
+          ).and_return([{ 'flowID' => 1, 'name' => 'flow1' }, { 'flowID' => 2, 'name' => 'flow2' }])
+          expect(@client).to receive(:get_application_flows).with(
+            fake_app_revision_id + 1
+          ).and_return(new_server_app_flows)
+
+          expect(@client).to receive(:plan_application_flows).with(
+            flows_from_server, new_app_flows
+          ).and_return([flows_to_delete, flows_to_create, flows_to_modify])
+
+          expect(@client).to receive(:implement_app_flows_plan).with(
+            app_name,
+            new_app_flows,
+            flows_from_server,
+            flows_to_delete,
+            flows_to_create,
+            flows_to_modify
+          )
+
+          @client.define_application_flows(
+            app_name,
+            new_app_flows
+          )
+        end
+      end
+    end
+  end
+end
