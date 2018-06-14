@@ -46,7 +46,6 @@ RSpec.describe ALGOSEC_SDK::Client do
       )
       @client.init_http_client
     end
-
   end
 
   describe '#rest_api' do
@@ -61,14 +60,16 @@ RSpec.describe ALGOSEC_SDK::Client do
 
     it 'logs the request type and path (debug level)' do
       @client.logger.level = @client.logger.class.const_get('DEBUG')
-      %w(get post put patch delete).each do |type|
+      %w[get post put patch delete].each do |type|
         expect { @client.rest_api(type, path) }
           .to output(/Making :#{type} rest call to #{@client.host + path}/).to_stdout_from_any_process
       end
     end
 
     it 'raises an error when the ssl validation fails' do
-      allow_any_instance_of(ALGOSEC_SDK::AdvancedJSONClient).to receive(:request).and_raise(OpenSSL::SSL::SSLError, 'Msg')
+      allow_any_instance_of(ALGOSEC_SDK::AdvancedJSONClient).to receive(:request).and_raise(
+        OpenSSL::SSL::SSLError, 'Msg'
+      )
       expect(@client.logger).to receive(:error).with(/SSL verification failed/)
       expect { @client.rest_api(:get, path) }.to raise_error(OpenSSL::SSL::SSLError)
     end
@@ -79,7 +80,6 @@ RSpec.describe ALGOSEC_SDK::Client do
       expect { @client.rest_api(:get, path) }.to raise_error(SocketError)
     end
   end
-
 
   describe '#rest_get' do
     it 'calls rest_api' do
@@ -174,7 +174,7 @@ RSpec.describe ALGOSEC_SDK::Client do
 
   describe '#send_request' do
     before :each do
-      @uri = URI.parse(URI.escape(@client.host + path))
+      @uri = URI.parse(CGI.escape(@client.host + path))
       fake_response = FakeResponse.new({ name: 'New' }, 200, location: path)
       allow_any_instance_of(ALGOSEC_SDK::AdvancedJSONClient).to receive(:request).and_return(fake_response)
     end

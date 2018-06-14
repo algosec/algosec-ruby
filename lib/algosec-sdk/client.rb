@@ -26,15 +26,22 @@ module ALGOSEC_SDK
     # @option options [String] :password Password to use for authentication with the AlgoSec server
     # @option options [Logger] :logger (Logger.new(STDOUT)) Logger object to use.
     #   Must implement debug(String), info(String), warn(String), error(String), & level=
-    # @option options [Symbol] :log_level (:info) Log level. Logger must define a constant with this name. ie Logger::INFO
+    # @option options [Symbol] :log_level (:info) Log level.
+    #   Logger must define a constant with this name. ie Logger::INFO
     # @option options [Boolean] :ssl_enabled (true) Use ssl for requests?
     # @option options [Boolean] :disable_proxy (false) Disable usage of a proxy for requests?
     def initialize(options = {})
       options = Hash[options.map { |k, v| [k.to_sym, v] }] # Convert string hash keys to symbols
       @logger = options[:logger] || Logger.new(STDOUT)
-      [:debug, :info, :warn, :error, :level=].each { |m| raise "Logger must respond to #{m} method " unless @logger.respond_to?(m) }
+      %i[debug info warn error level=].each do |m|
+        raise "Logger must respond to #{m} method " unless @logger.respond_to?(m)
+      end
       @log_level = options[:log_level] || :info
-      @logger.level = @logger.class.const_get(@log_level.upcase) rescue @log_level
+      @logger.level = begin
+                        @logger.class.const_get(@log_level.upcase)
+                      rescue StandardError
+                        @log_level
+                      end
       @host = options[:host] || ENV['ALGOSEC_HOST']
       raise InvalidClient, 'Must set the host option' unless @host
       @host = 'https://' + @host unless @host.start_with?('http://', 'https://')
@@ -51,10 +58,13 @@ module ALGOSEC_SDK
         raise InvalidClient, "ssl_enabled option must be true or false. Got '#{@ssl_enabled}'"
       end
       unless @ssl_enabled
-        @logger.warn "SSL is disabled for all requests to #{@host}! We recommend you import the necessary certificates instead of disabling SSL."
+        @logger.warn "SSL is disabled for all requests to #{@host}!"\
+                               ' We recommend you import the necessary certificates instead of disabling SSL.'
       end
       @disable_proxy = options[:disable_proxy]
-      raise InvalidClient, 'disable_proxy option must be true, false, or nil' unless [true, false, nil].include?(@disable_proxy)
+      unless [true, false, nil].include?(@disable_proxy)
+        raise InvalidClient, 'disable_proxy option must be true, false, or nil'
+      end
       @logger.warn 'User option not set. Using default (admin)' unless options[:user] || ENV['ALGOSEC_USER']
       @user = options[:user] || ENV['ALGOSEC_USER'] || 'admin'
       @password = options[:password] || ENV['ALGOSEC_PASSWORD']

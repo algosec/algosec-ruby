@@ -104,12 +104,13 @@ module ALGOSEC_SDK
       type = 'APPLICATION',
       custom_fields = []
     )
+      # rubocop:enable Metrics/ParameterLists
 
       # Create the missing network objects from the sources and destinations
       create_missing_network_objects(sources + destinations)
       create_missing_services(network_services)
 
-      get_named_objects = -> (name_list) { name_list.map { |name| { name: name } } }
+      get_named_objects = ->(name_list) { name_list.map { |name| { name: name } } }
 
       new_flow = {
         name: flow_name,
@@ -140,7 +141,9 @@ module ALGOSEC_SDK
       end
 
       if requested_flow.nil?
-        raise("Unable to find flow by name. Application revision id: #{app_revision_id}, flow_name: #{flow_name}.")
+        raise(
+          "Unable to find flow by name. Application revision id: #{app_revision_id}, flow_name: #{flow_name}."
+        )
       end
       requested_flow
     end
@@ -284,7 +287,6 @@ module ALGOSEC_SDK
 
       apply_application_draft(app_revision_id) if is_draft_revision
     end
-
 
     # Update application flows of an application to match a requested flows configuration.
     # @param [Integer] app_name The app to create the flows for

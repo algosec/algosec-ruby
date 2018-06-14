@@ -1,7 +1,6 @@
 require_relative './../spec_helper'
 
 RSpec.describe ALGOSEC_SDK::Client do
-
   describe '#initialize' do
     it 'creates a client with valid credentials' do
       options = { host: 'https://algosec.example.com', user: 'admin', password: 'secret123' }
@@ -33,7 +32,9 @@ RSpec.describe ALGOSEC_SDK::Client do
     it 'sets the username to "admin" by default' do
       options = { host: 'algosec.example.com', password: 'secret123' }
       client = nil
-      expect { client = described_class.new(options) }.to output(/User option not set. Using default/).to_stdout_from_any_process
+      expect do
+        client = described_class.new(options)
+      end.to output(/User option not set. Using default/).to_stdout_from_any_process
       expect(client.user).to eq('admin')
     end
 

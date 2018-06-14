@@ -1,7 +1,7 @@
 require 'pry'
 require 'simplecov'
 
-client_files = %w(client.rb rest.rb)
+client_files = %w[client.rb rest.rb]
 helper_path = 'lib/algosec-sdk/helpers'
 
 SimpleCov.start do

@@ -10,9 +10,9 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       @client.login
     end
   end
-  # rubocop:disable Style/NumericLiterals
   describe '#get_application_flows#' do
     it 'makes a GET rest call' do
+      # rubocop:disable Style/NumericLiterals
       body = [
         {
           'comment' => '',
@@ -28,7 +28,8 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
               'objectType' => 'Host',
               'origin' => 'Imported from file',
               'revisionID' => 13293
-            }],
+            }
+          ],
           'flowID' => 1477,
           'flowType' => 'APPLICATION_FLOW',
           'lastUpdateDate' => 1520353393013,
@@ -44,7 +45,8 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
               'revisionID' => 15069,
               'serviceID' => 15069,
               'services' => ['TCP/200']
-            }],
+            }
+          ],
           'sources' => [
             {
               'createdDate' => 1518136372407,
@@ -59,8 +61,11 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
           ]
         }
       ]
+      # rubocop:enable Style/NumericLiterals
       fake_response = FakeResponse.new(body)
-      expect(@client).to receive(:rest_get).with('/BusinessFlow/rest/v1/applications/app-revision-id/flows').and_return(fake_response)
+      expect(@client).to receive(:rest_get).with(
+        '/BusinessFlow/rest/v1/applications/app-revision-id/flows'
+      ).and_return(fake_response)
       flows = @client.get_application_flows('app-revision-id')
       expect(flows).to eq(body)
     end
@@ -112,7 +117,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         name: 'flow-name',
         sources: [{ name: 'source1' }, { name: 'source2' }],
         destinations: [{ name: 'dest1' }, { name: 'dest2' }],
-        users: %w(user1 user2),
+        users: %w[user1 user2],
         network_applications: [{ name: 'app1' }, { name: 'app2' }],
         services: [{ name: 'service1' }, { name: 'service2' }],
         comment: 'Comment',
@@ -120,8 +125,8 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         custom_fields: []
       }
       fake_response = FakeResponse.new([new_flow])
-      expect(@client).to receive(:create_missing_network_objects).with(%w(source1 source2 dest1 dest2))
-      expect(@client).to receive(:create_missing_services).with(%w(service1 service2))
+      expect(@client).to receive(:create_missing_network_objects).with(%w[source1 source2 dest1 dest2])
+      expect(@client).to receive(:create_missing_services).with(%w[service1 service2])
       expect(@client).to receive(:rest_post).with(
         '/BusinessFlow/rest/v1/applications/app-revision-id/flows/new',
         body: [new_flow]
@@ -129,11 +134,11 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       ret_val = @client.create_application_flow(
         'app-revision-id',
         'flow-name',
-        %w(source1 source2),
-        %w(dest1 dest2),
-        %w(service1 service2),
-        %w(user1 user2),
-        %w(app1 app2),
+        %w[source1 source2],
+        %w[dest1 dest2],
+        %w[service1 service2],
+        %w[user1 user2],
+        %w[app1 app2],
         'Comment'
       )
       expect(ret_val.to_json).to eq(new_flow.to_json)
@@ -169,7 +174,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       expect(@client).to receive(:rest_post).with(
         '/BusinessFlow/rest/v1/network_services/new', body: new_service
       ).and_return(FakeResponse.new)
-      ret_val = @client.create_network_service('service-name', [%w(tcp 123), %w(udp 500)])
+      ret_val = @client.create_network_service('service-name', [%w[tcp 123], %w[udp 500]])
       expect(ret_val).to eq(true)
     end
   end
@@ -257,7 +262,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       service_name = 'tcp/50'
       already_exists_error = 'Service name already exists'
       expect(@client).to receive(:create_network_service).with(
-        service_name, [%w(tcp 50)]
+        service_name, [%w[tcp 50]]
       ).and_raise(ALGOSEC_SDK::BadRequest, already_exists_error)
       created_services = @client.create_missing_services([service_name])
       expect(created_services).to eq([])
@@ -266,7 +271,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       service_name = 'tcp/50'
       exc = ALGOSEC_SDK::BadRequest.new
       expect(@client).to receive(:create_network_service).with(
-        service_name, [%w(tcp 50)]
+        service_name, [%w[tcp 50]]
       ).and_raise(exc)
       expect do
         @client.create_missing_services([service_name])
@@ -277,7 +282,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       service_name2 = 'someServiceName'
       fake_created_object = { name: service_name1 }
       expect(@client).to receive(:create_network_service).with(
-        service_name1, [%w(tcp 50)]
+        service_name1, [%w[tcp 50]]
       ).and_return(fake_created_object)
       created_objects = @client.create_missing_services([service_name1, service_name2])
       expect(created_objects).to eq([fake_created_object])
@@ -309,9 +314,9 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
           server_app_flows,
           new_app_flows
         )
-        expect(flows_to_delete).to eq(Set.new(%w(flow-that-will-be-deleted)))
-        expect(flows_to_create).to eq(Set.new(%w(new-flow)))
-        expect(flows_to_modify).to eq(Set.new(%w(modified-flow)))
+        expect(flows_to_delete).to eq(Set.new(%w[flow-that-will-be-deleted]))
+        expect(flows_to_create).to eq(Set.new(%w[new-flow]))
+        expect(flows_to_modify).to eq(Set.new(%w[modified-flow]))
       end
     end
     describe '#implement_app_flows_plan#' do
@@ -327,7 +332,6 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         flows_to_delete = Set.new(['flow-that-will-be-deleted'])
         flows_to_create = Set.new([])
         flows_to_modify = Set.new([])
-
 
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
@@ -370,7 +374,6 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         flows_to_delete = Set.new([])
         flows_to_create = Set.new(['new-flow'])
         flows_to_modify = Set.new([])
-
 
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is created
@@ -437,7 +440,6 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         flows_to_delete = Set.new([])
         flows_to_create = Set.new([])
         flows_to_modify = Set.new(['modified-flow'])
-
 
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted

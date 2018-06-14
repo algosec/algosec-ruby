@@ -6,7 +6,7 @@ Metrics/ClassLength:
   Max: 200
 
 Metrics/LineLength:
-  Max: 155
+  Max: 120
 
 Metrics/ModuleLength:
   Max: 200
@@ -14,35 +14,38 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 6
 
-Style/IndentationWidth:
+Layout/IndentationWidth:
   Width: 2
 
-Style/VariableName:
+Naming/VariableName:
   EnforcedStyle: snake_case
 
-Style/FileName:
+Naming/FileName:
   Exclude:
     - 'lib/algosec-sdk.rb'
 
-Style/AlignParameters:
+Layout/AlignParameters:
   Enabled: true
 
-Style/AccessorMethodName:
+Naming/AccessorMethodName:
   Enabled: false
 
-Style/ClassAndModuleCamelCase:
+Naming/ClassAndModuleCamelCase:
   Enabled: false
 
-Style/EmptyLines:
-  Enabled: false
+#Style/EmptyLines:
+#  Enabled: false
+#
+#Style/RescueModifier:
+#  Enabled: false
+#
+#Style/EmptyLinesAroundBlockBody:
+#  Enabled: false
+#
+#Style/EmptyLinesAroundClassBody:
+#  Enabled: false
 
-Style/RescueModifier:
-  Enabled: false
-
-Style/EmptyLinesAroundBlockBody:
-  Enabled: false
-
-Style/EmptyLinesAroundClassBody:
+Metrics/BlockLength:
   Enabled: false
 
 Metrics/AbcSize:
@@ -59,3 +62,7 @@ Metrics/PerceivedComplexity:
 
 Performance/Casecmp:
   Enabled: false
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "spec/**/*"

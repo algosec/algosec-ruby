@@ -8,14 +8,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
     it 'test the func' do
       expect(
         @flow_compare.are_sources_equal_in_flow(
-          %w(objectName1 objectName2),
+          %w[objectName1 objectName2],
           'sources' => [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_sources_equal_in_flow(
-          %w(objectName1),
+          %w[objectName1],
           'sources' => [{ 'name' => 'UnknownObjectName' }]
         )
       ).to equal(false)
@@ -25,14 +25,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
     it 'test the func' do
       expect(
         @flow_compare.are_dest_equal_in_flow(
-          %w(objectName1 objectName2),
+          %w[objectName1 objectName2],
           'destinations' => [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_dest_equal_in_flow(
-          %w(objectName1),
+          %w[objectName1],
           'destinations' => [{ 'name' => 'UnknownObjectName' }]
         )
       ).to equal(false)
@@ -43,7 +43,7 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       # TODO: Make sure that we have no issues with case sensitiveness of TCP/80 vs tcp/80 for any of the protocols
       expect(
         @flow_compare.are_services_equal_in_flow(
-          %w(service1 service2),
+          %w[service1 service2],
           'services' => [
             { 'name' => 'service2' },
             { 'name' => 'service1' }
@@ -63,14 +63,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
     it 'test the func' do
       expect(
         @flow_compare.are_apps_equal_in_flow(
-          %w(app1 app2),
+          %w[app1 app2],
           'networkApplications' => [{ 'name' => 'app1' }, { 'name' => 'app2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_apps_equal_in_flow(
-          %w(app1 app2 app3),
+          %w[app1 app2 app3],
           'networkApplications' => [{ 'name' => 'app1' }, { 'name' => 'app2' }]
         )
       ).to equal(false)
@@ -85,7 +85,7 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
 
       expect(
         @flow_compare.are_apps_equal_in_flow(
-          %w(app1),
+          %w[app1],
           'networkApplications' => [ALGOSEC_SDK::ANY_NETWORK_APPLICATION]
         )
       ).to equal(false)
@@ -95,14 +95,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
     it 'test the func' do
       expect(
         @flow_compare.are_users_equal_in_flow(
-          %w(user1 user2),
+          %w[user1 user2],
           'networkUsers' => [{ 'name' => 'user1' }, { 'name' => 'user2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_users_equal_in_flow(
-          %w(user1 UnknownUser),
+          %w[user1 UnknownUser],
           'networkUsers' => [{ 'name' => 'user1' }, { 'name' => 'user2' }]
         )
       ).to equal(false)

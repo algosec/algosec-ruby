@@ -29,4 +29,4 @@ RuboCop::RakeTask.new do |task|
 end
 
 desc 'Runs rubocop and unit tests'
-task test: [:rubocop, :spec]
+task test: %i[rubocop spec]

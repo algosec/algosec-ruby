@@ -15,7 +15,6 @@ require 'openssl'
 require 'json'
 require 'jsonclient'
 
-
 module ALGOSEC_SDK
   # Adds the ability for httpclient to set proper content-type for Hash AND Array body
   class AdvancedJSONClient < JSONClient
@@ -29,7 +28,6 @@ module ALGOSEC_SDK
     end
   end
 end
-
 
 module ALGOSEC_SDK
   # Contains all the methods for making API REST calls
@@ -123,9 +121,9 @@ module ALGOSEC_SDK
     def response_handler(response)
       case response.status
       when RESPONSE_CODE_OK # Synchronous read/query
-        return response.body
+        response.body
       when RESPONSE_CODE_CREATED # Synchronous add
-        return response.body
+        response.body
         # when RESPONSE_CODE_ACCEPTED # Asynchronous add, update or delete
         # return response.body #
         # @logger.debug "Waiting for task: #{response.headers['location']}"
@@ -134,7 +132,7 @@ module ALGOSEC_SDK
         # resource_data = rest_get(task['associatedResource']['resourceUri'])
         # return JSON.parse(resource_data.body)
       when RESPONSE_CODE_NO_CONTENT # Synchronous delete
-        return {}
+        {}
       when RESPONSE_CODE_BAD_REQUEST
         raise BadRequest, "400 BAD REQUEST #{response.body}"
       when RESPONSE_CODE_UNAUTHORIZED

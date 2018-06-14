@@ -21,9 +21,7 @@ module ALGOSEC_SDK
     end
 
     def self.are_apps_equal_in_flow(application_names, network_flow)
-      if network_flow['networkApplications'] == [ANY_NETWORK_APPLICATION]
-        return application_names == []
-      end
+      return application_names == [] if network_flow['networkApplications'] == [ANY_NETWORK_APPLICATION]
       flow_application_names = network_flow['networkApplications'].map do |network_application|
         network_application['name']
       end
