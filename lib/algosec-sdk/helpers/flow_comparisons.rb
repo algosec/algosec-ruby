@@ -1,8 +1,8 @@
 require 'set'
 
 module ALGOSEC_SDK
-  ANY_OBJECT = { id: 0, name: 'Any' }.to_json.freeze
-  ANY_NETWORK_APPLICATION = { revisionID: 0, name: 'Any' }.to_json.freeze
+  ANY_OBJECT = { 'id' => 0, 'name' => 'Any' }.freeze
+  ANY_NETWORK_APPLICATION = { 'revisionID' => 0, 'name' => 'Any' }.freeze
   # A module to determine if a local flow definition is equal to a flow defined on the server
   module AreFlowsEqual
     def self.are_sources_equal_in_flow(source_object_names, network_flow)
@@ -39,9 +39,9 @@ module ALGOSEC_SDK
       [
         are_sources_equal_in_flow(new_flow['sources'], flow_from_server),
         are_dest_equal_in_flow(new_flow['destinations'], flow_from_server),
-        are_services_equal_in_flow(new_flow['network_services'], flow_from_server),
-        are_apps_equal_in_flow(new_flow['network_applications'], flow_from_server),
-        are_users_equal_in_flow(new_flow['network_users'], flow_from_server)
+        are_services_equal_in_flow(new_flow['services'], flow_from_server),
+        are_apps_equal_in_flow(new_flow.fetch('applications', []), flow_from_server),
+        are_users_equal_in_flow(new_flow.fetch('users', []), flow_from_server)
       ].all?
     end
   end

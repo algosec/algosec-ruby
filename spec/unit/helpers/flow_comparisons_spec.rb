@@ -124,13 +124,13 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
     end
   end
   describe '#flows_equal?#' do
-    it 'test flows_equal for positive cases' do
+    it 'positive cases' do
       new_flow = {
         'sources' => 'sources',
         'destinations' => 'destinations',
-        'network_services' => 'network_services',
-        'network_applications' => 'network_applications',
-        'network_users' => 'network_users'
+        'services' => 'network_services',
+        'applications' => 'network_applications',
+        'users' => 'network_users'
       }
 
       server_flow = Object.new
@@ -141,26 +141,26 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
         new_flow['destinations'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
-        new_flow['network_services'], server_flow
+        new_flow['services'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
-        new_flow['network_applications'], server_flow
+        new_flow['applications'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
-        new_flow['network_users'], server_flow
+        new_flow['users'], server_flow
       ).and_return(true)
 
       expect(
         @flow_compare.flows_equal?(new_flow, server_flow)
       ).to equal(true)
     end
-    it 'test flows_equal for negative cases' do
+    it 'negative cases' do
       new_flow = {
         'sources' => 'sources',
         'destinations' => 'destinations',
-        'network_services' => 'network_services',
-        'network_applications' => 'network_applications',
-        'network_users' => 'network_users'
+        'services' => 'services',
+        'applications' => 'applications',
+        'users' => 'users'
       }
 
       server_flow = Object.new
@@ -171,13 +171,41 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
         new_flow['destinations'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
-        new_flow['network_services'], server_flow
+        new_flow['services'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
-        new_flow['network_applications'], server_flow
+        new_flow['applications'], server_flow
       ).and_return(true)
       expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
-        new_flow['network_users'], server_flow
+        new_flow['users'], server_flow
+      ).and_return(true)
+
+      expect(
+        @flow_compare.flows_equal?(new_flow, server_flow)
+      ).to equal(false)
+    end
+    it 'default values are used for applications and users' do
+      new_flow = {
+        'sources' => 'sources',
+        'destinations' => 'destinations',
+        'services' => 'services'
+      }
+
+      server_flow = Object.new
+      expect(@flow_compare).to receive(:are_sources_equal_in_flow).with(
+        new_flow['sources'], server_flow
+      ).and_return(false)
+      expect(@flow_compare).to receive(:are_dest_equal_in_flow).with(
+        new_flow['destinations'], server_flow
+      ).and_return(true)
+      expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
+        new_flow['services'], server_flow
+      ).and_return(true)
+      expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
+        [], server_flow
+      ).and_return(true)
+      expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
+        [], server_flow
       ).and_return(true)
 
       expect(
