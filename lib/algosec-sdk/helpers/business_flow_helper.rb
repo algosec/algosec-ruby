@@ -259,10 +259,13 @@ module ALGOSEC_SDK
       # Delete all the flows for deletion and modification
       (flows_to_delete | flows_to_modify).each do |flow_name_to_delete|
         delete_flow_by_id(app_revision_id, flows_from_server[flow_name_to_delete]['flowID'])
-        unless is_draft_revision
-          app_revision_id = get_app_revision_id_by_name(app_name)
-          is_draft_revision = true
-        end
+        next if is_draft_revision
+        app_revision_id = get_app_revision_id_by_name(app_name)
+        # Refetch the fresh flows from the server, as a new application revision has been created
+        # and it's flow IDs have been change. Only that way we can make sure that the following flow deletions
+        # by name will work as expected
+        flows_from_server = get_application_flows(app_revision_id)
+        is_draft_revision = true
       end
       # Create all the new + modified flows
       (flows_to_create | flows_to_modify).each do |flow_name_to_create|

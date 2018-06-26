@@ -336,6 +336,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:get_application_flows).with(fake_app_revision_id + 1).and_return(server_app_flows)
         expect(@client).to receive(:delete_flow_by_id).with(
           fake_app_revision_id,
           server_app_flows['flow-that-will-be-deleted']['flowID']
@@ -357,7 +358,6 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         fake_app_revision_id = 1500
 
         new_app_flows = {
-          'modified-flow' => {},
           'new-flow' => {
             'sources' => 'some-sources',
             'destinations' => 'some-destinations',
@@ -367,10 +367,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
             'comment' => 'some-comment'
           }
         }
-        server_app_flows = {
-          'flow-that-will-be-deleted' => { 'flowID' => 1 },
-          'modified-flow' => { 'flowID' => 2 }
-        }
+        server_app_flows = {}
         flows_to_delete = Set.new([])
         flows_to_create = Set.new(['new-flow'])
         flows_to_modify = Set.new([])
@@ -444,6 +441,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:get_application_flows).with(fake_app_revision_id + 1).and_return(server_app_flows)
         expect(@client).to receive(:delete_flow_by_id).with(
           fake_app_revision_id,
           server_app_flows['modified-flow']['flowID']
@@ -458,6 +456,54 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
           new_app_flows['modified-flow']['users'],
           new_app_flows['modified-flow']['applications'],
           new_app_flows['modified-flow']['comment']
+        )
+
+        # Use the app revision id that was updated after deletion
+        expect(@client).to receive(:apply_application_draft).with(fake_app_revision_id + 1)
+
+        @client.implement_app_flows_plan(
+          app_name,
+          new_app_flows,
+          server_app_flows,
+          flows_to_delete,
+          flows_to_create,
+          flows_to_modify
+        )
+      end
+      it 'after first flow deletion, the draft app flows are updated' do
+        app_name = 'AppName'
+        fake_app_revision_id = 1500
+
+        new_app_flows = {
+          'modified-flow' => {
+            'sources' => 'some-sources',
+            'destinations' => 'some-destinations',
+            'services' => 'some-services',
+            'users' => 'some-users',
+            'applications' => 'some-applications',
+            'comment' => 'some-comment'
+          }
+        }
+        server_app_flows = { 'flow-that-will-be-deleted' => { 'flowID' => 1 } }
+        # Server flow IDs change when a new application revision is created after first deletion
+        draft_server_app_flows = { 'another-flow-that-will-be-deleted' => { 'flowID' => 456 } }
+        flows_to_delete = Set.new(%w[flow-that-will-be-deleted another-flow-that-will-be-deleted])
+        flows_to_create = Set.new([])
+        flows_to_modify = Set.new([])
+
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
+        # App revision id is updated after a flow is deleted
+        expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
+        expect(@client).to receive(:get_application_flows).with(
+          fake_app_revision_id + 1
+        ).and_return(draft_server_app_flows)
+        expect(@client).to receive(:delete_flow_by_id).with(
+          fake_app_revision_id,
+          server_app_flows['flow-that-will-be-deleted']['flowID']
+        )
+        expect(@client).to receive(:delete_flow_by_id).with(
+          fake_app_revision_id + 1,
+          draft_server_app_flows['another-flow-that-will-be-deleted']['flowID']
         )
 
         # Use the app revision id that was updated after deletion
