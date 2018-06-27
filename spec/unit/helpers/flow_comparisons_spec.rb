@@ -9,14 +9,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_sources_equal_in_flow(
           %w[objectName1 objectName2],
-          'sources' => [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
+          [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_sources_equal_in_flow(
           %w[objectName1],
-          'sources' => [{ 'name' => 'UnknownObjectName' }]
+          [{ 'name' => 'UnknownObjectName' }]
         )
       ).to equal(false)
     end
@@ -26,14 +26,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_dest_equal_in_flow(
           %w[objectName1 objectName2],
-          'destinations' => [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
+          [{ 'name' => 'objectName1' }, { 'name' => 'objectName2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_dest_equal_in_flow(
           %w[objectName1],
-          'destinations' => [{ 'name' => 'UnknownObjectName' }]
+          [{ 'name' => 'UnknownObjectName' }]
         )
       ).to equal(false)
     end
@@ -44,17 +44,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_services_equal_in_flow(
           %w[service1 service2],
-          'services' => [
-            { 'name' => 'service2' },
-            { 'name' => 'service1' }
-          ]
+          [{ 'name' => 'service2' }, { 'name' => 'service1' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_services_equal_in_flow(
           ['service2'],
-          'services' => [{ 'name' => 'service1' }]
+          [{ 'name' => 'service1' }]
         )
       ).to equal(false)
     end
@@ -64,14 +61,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_apps_equal_in_flow(
           %w[app1 app2],
-          'networkApplications' => [{ 'name' => 'app1' }, { 'name' => 'app2' }]
+          [{ 'name' => 'app1' }, { 'name' => 'app2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_apps_equal_in_flow(
           %w[app1 app2 app3],
-          'networkApplications' => [{ 'name' => 'app1' }, { 'name' => 'app2' }]
+          [{ 'name' => 'app1' }, { 'name' => 'app2' }]
         )
       ).to equal(false)
 
@@ -79,14 +76,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_apps_equal_in_flow(
           [],
-          'networkApplications' => [ALGOSEC_SDK::ANY_NETWORK_APPLICATION]
+          [ALGOSEC_SDK::ANY_NETWORK_APPLICATION]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_apps_equal_in_flow(
           %w[app1],
-          'networkApplications' => [ALGOSEC_SDK::ANY_NETWORK_APPLICATION]
+          [ALGOSEC_SDK::ANY_NETWORK_APPLICATION]
         )
       ).to equal(false)
     end
@@ -96,14 +93,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_users_equal_in_flow(
           %w[user1 user2],
-          'networkUsers' => [{ 'name' => 'user1' }, { 'name' => 'user2' }]
+          [{ 'name' => 'user1' }, { 'name' => 'user2' }]
         )
       ).to equal(true)
 
       expect(
         @flow_compare.are_users_equal_in_flow(
           %w[user1 UnknownUser],
-          'networkUsers' => [{ 'name' => 'user1' }, { 'name' => 'user2' }]
+          [{ 'name' => 'user1' }, { 'name' => 'user2' }]
         )
       ).to equal(false)
 
@@ -111,14 +108,14 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
       expect(
         @flow_compare.are_users_equal_in_flow(
           ['user1'],
-          'networkUsers' => [ALGOSEC_SDK::ANY_OBJECT]
+          [ALGOSEC_SDK::ANY_OBJECT]
         )
       ).to equal(false)
 
       expect(
         @flow_compare.are_users_equal_in_flow(
           [],
-          'networkUsers' => [ALGOSEC_SDK::ANY_OBJECT]
+          [ALGOSEC_SDK::ANY_OBJECT]
         )
       ).to equal(true)
     end
@@ -133,21 +130,27 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
         'users' => 'network_users'
       }
 
-      server_flow = Object.new
+      server_flow = {
+        'sources' => 'sources',
+        'destinations' => 'destinations',
+        'services' => 'services',
+        'networkApplications' => 'applications',
+        'networkUsers' => 'users'
+      }
       expect(@flow_compare).to receive(:are_sources_equal_in_flow).with(
-        new_flow['sources'], server_flow
+        new_flow['sources'], server_flow['sources']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_dest_equal_in_flow).with(
-        new_flow['destinations'], server_flow
+        new_flow['destinations'], server_flow['destinations']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
-        new_flow['services'], server_flow
+        new_flow['services'], server_flow['services']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
-        new_flow['applications'], server_flow
+        new_flow['applications'], server_flow.fetch('networkApplications', [])
       ).and_return(true)
       expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
-        new_flow['users'], server_flow
+        new_flow['users'], server_flow.fetch('networkUsers', [])
       ).and_return(true)
 
       expect(
@@ -163,21 +166,27 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
         'users' => 'users'
       }
 
-      server_flow = Object.new
+      server_flow = {
+        'sources' => 'sources',
+        'destinations' => 'destinations',
+        'services' => 'services',
+        'networkApplications' => 'applications',
+        'networkUsers' => 'users'
+      }
       expect(@flow_compare).to receive(:are_sources_equal_in_flow).with(
-        new_flow['sources'], server_flow
+        new_flow['sources'], server_flow['sources']
       ).and_return(false)
       expect(@flow_compare).to receive(:are_dest_equal_in_flow).with(
-        new_flow['destinations'], server_flow
+        new_flow['destinations'], server_flow['destinations']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
-        new_flow['services'], server_flow
+        new_flow['services'], server_flow['services']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
-        new_flow['applications'], server_flow
+        new_flow['applications'], server_flow.fetch('networkApplications', [])
       ).and_return(true)
       expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
-        new_flow['users'], server_flow
+        new_flow['users'], server_flow['networkUsers']
       ).and_return(true)
 
       expect(
@@ -191,21 +200,26 @@ RSpec.describe ALGOSEC_SDK::AreFlowsEqual do
         'services' => 'services'
       }
 
-      server_flow = Object.new
+      server_flow = {
+        'sources' => 'sources',
+        'destinations' => 'destinations',
+        'services' => 'services'
+      }
+
       expect(@flow_compare).to receive(:are_sources_equal_in_flow).with(
-        new_flow['sources'], server_flow
+        new_flow['sources'], server_flow['sources']
       ).and_return(false)
       expect(@flow_compare).to receive(:are_dest_equal_in_flow).with(
-        new_flow['destinations'], server_flow
+        new_flow['destinations'], server_flow['destinations']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_services_equal_in_flow).with(
-        new_flow['services'], server_flow
+        new_flow['services'], server_flow['services']
       ).and_return(true)
       expect(@flow_compare).to receive(:are_apps_equal_in_flow).with(
-        [], server_flow
+        [], []
       ).and_return(true)
       expect(@flow_compare).to receive(:are_users_equal_in_flow).with(
-        [], server_flow
+        [], []
       ).and_return(true)
 
       expect(
