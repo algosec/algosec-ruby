@@ -33,18 +33,6 @@ Naming/AccessorMethodName:
 Naming/ClassAndModuleCamelCase:
   Enabled: false
 
-#Style/EmptyLines:
-#  Enabled: false
-#
-#Style/RescueModifier:
-#  Enabled: false
-#
-#Style/EmptyLinesAroundBlockBody:
-#  Enabled: false
-#
-#Style/EmptyLinesAroundClassBody:
-#  Enabled: false
-
 Metrics/BlockLength:
   Enabled: false
 
@@ -66,3 +54,15 @@ Performance/Casecmp:
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - "spec/**/*"
+
+#Style/EmptyLines:
+#  Enabled: false
+#
+#Style/RescueModifier:
+#  Enabled: false
+#
+#Style/EmptyLinesAroundBlockBody:
+#  Enabled: false
+#
+#Style/EmptyLinesAroundClassBody:
+#  Enabled: false
