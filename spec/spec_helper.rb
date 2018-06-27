@@ -1,5 +1,8 @@
+require 'coveralls'
 require 'pry'
 require 'simplecov'
+
+Coveralls.wear!
 
 client_files = %w[client.rb rest.rb]
 helper_path = 'lib/algosec-sdk/helpers'
