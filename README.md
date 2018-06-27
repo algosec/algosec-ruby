@@ -1,5 +1,6 @@
 # Ruby SDK for AlgoSec Services
 
+[![Build Status](https://travis-ci.org/algosec/algosec-ruby.svg)](https://travis-ci.org/algosec/algosec-ruby)
 [![Gem Version](https://badge.fury.io/rb/algosec-sdk.svg)](https://badge.fury.io/rb/algosec-sdk)
 [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/gems/algosec-sdk)
 
