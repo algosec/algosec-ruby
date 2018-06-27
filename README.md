@@ -2,8 +2,8 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/algosec/algosec-ruby/badge.svg)](https://coveralls.io/github/algosec/algosec-ruby)
 [![Build Status](https://travis-ci.org/algosec/algosec-ruby.svg)](https://travis-ci.org/algosec/algosec-ruby)
+[![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/algosec/algosec-ruby)
 [![Gem Version](https://badge.fury.io/rb/algosec-sdk.svg)](https://badge.fury.io/rb/algosec-sdk)
-[![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/gems/algosec-sdk)
 
 Software Development Kit for interacting with the AlgoSec services API.
 
