@@ -164,7 +164,7 @@ Please refer to the documentation and [code](lib/algosec-sdk/rest.rb) for comple
 
 ## License
 
-This project is licensed under the Apache 2.0 license. Please see [LICENSE](LICENSE) for more info.
+This project is licensed under the MIT license. Please see [LICENSE](LICENSE) for more info.
 
 
 ## Contributing and feature requests
