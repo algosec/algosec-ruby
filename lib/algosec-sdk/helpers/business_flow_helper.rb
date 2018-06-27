@@ -199,18 +199,11 @@ module ALGOSEC_SDK
     # @raise [RuntimeError] if theh request failed
     # @return List of objects from the search result
     def search_network_object(ip_or_subnet, search_type)
-      # response = rest_get("/BusinessFlow/rest/v1/network_objects/find?address=#{ip_or_subnet}&type=#{search_type}")
       response = rest_get(
         '/BusinessFlow/rest/v1/network_objects/find',
         query: { address: ip_or_subnet, type: search_type }
       )
       response_handler(response)
-      # if not isinstance(response.json(), list):
-      #   logger.warning("search_network_objects: unsupported api response. Return empty result. (reponse: {})".format(
-      #     response.json()
-      #   ))
-      # return []
-      # return response.json()
     end
 
     # Return a plan for modifying application flows based on current and newly proposed application flows definition

@@ -195,6 +195,17 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       expect(ret_val).to eq(new_network_object)
     end
   end
+  describe '#search_network_object#' do
+    it 'makes a GET rest call' do
+      search_result = [{ 'objectID' => 123 }]
+      fake_response = FakeResponse.new(search_result)
+      expect(@client).to receive(:rest_get).with(
+        '/BusinessFlow/rest/v1/network_objects/find', query: { address: 'ip-or-subnet', type: 'search-type' }
+      ).and_return(fake_response)
+      ret_val = @client.search_network_object('ip-or-subnet', 'search-type')
+      expect(ret_val).to eq(search_result)
+    end
+  end
   describe '#get_application_flow_by_name#' do
     it 'flow is found on the server' do
       app_revision_id = 410
