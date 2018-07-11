@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.email         = ['almog.cohen@algosec.com']
   spec.summary       = 'Gem to interact with AlgoSec API'
   spec.description   = 'Gem to interact with AlgoSec API'
-  spec.license       = 'Apache-2.0'
-  spec.homepage      = 'https://github.com/algosec/algosec-sdk-ruby'
+  spec.license       = 'MIT'
+  spec.homepage      = 'https://github.com/algosec/algosec-ruby'
 
   all_files = `git ls-files -z`.split("\x0")
   spec.files         = all_files.reject { |f| f.match(%r{^(examples\/)|(spec\/)}) }

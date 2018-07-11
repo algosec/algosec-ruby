@@ -184,6 +184,13 @@ First run `$ bundle` (requires the bundler gem), then...
  - To build only, run `$ rake build`.
  - To build and install the gem, run `$ rake install`.
 
+#### Pushing the gem to rubygems.org
+
+```bash
+$ rake build
+$ gem push pkg/algosec-sdk-<gem-version>.gem
+```
+
 ### Use Gem from sourcecode
 
 Run `pry -Ilib` then follow the README examples above. (don't forget to `require` the Gem)
