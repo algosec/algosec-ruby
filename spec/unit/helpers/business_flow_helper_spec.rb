@@ -347,7 +347,9 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
-        expect(@client).to receive(:get_application_flows).with(fake_app_revision_id + 1).and_return(server_app_flows)
+        expect(@client).to receive(:get_application_flows_hash).with(
+          fake_app_revision_id + 1
+        ).and_return(server_app_flows)
         expect(@client).to receive(:delete_flow_by_id).with(
           fake_app_revision_id,
           server_app_flows['flow-that-will-be-deleted']['flowID']
@@ -452,7 +454,9 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
-        expect(@client).to receive(:get_application_flows).with(fake_app_revision_id + 1).and_return(server_app_flows)
+        expect(@client).to receive(:get_application_flows_hash).with(
+          fake_app_revision_id + 1
+        ).and_return(server_app_flows)
         expect(@client).to receive(:delete_flow_by_id).with(
           fake_app_revision_id,
           server_app_flows['modified-flow']['flowID']
@@ -505,7 +509,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id)
         # App revision id is updated after a flow is deleted
         expect(@client).to receive(:get_app_revision_id_by_name).with(app_name).and_return(fake_app_revision_id + 1)
-        expect(@client).to receive(:get_application_flows).with(
+        expect(@client).to receive(:get_application_flows_hash).with(
           fake_app_revision_id + 1
         ).and_return(draft_server_app_flows)
         expect(@client).to receive(:delete_flow_by_id).with(

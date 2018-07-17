@@ -247,7 +247,7 @@ module ALGOSEC_SDK
         # Refetch the fresh flows from the server, as a new application revision has been created
         # and it's flow IDs have been change. Only that way we can make sure that the following flow deletions
         # by name will work as expected
-        flows_from_server = get_application_flows(app_revision_id)
+        flows_from_server = get_application_flows_hash(app_revision_id)
         is_draft_revision = true
       end
       # Create all the new + modified flows
