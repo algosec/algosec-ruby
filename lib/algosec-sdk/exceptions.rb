@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # (c) Copyright 2018 AlgoSec Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

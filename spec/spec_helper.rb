@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'coveralls'
 require 'pry'
 require 'simplecov'

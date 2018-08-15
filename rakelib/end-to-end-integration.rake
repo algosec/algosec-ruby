@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'Test API SDK end-to-end against an AlgoSec machine'
 task :e2e, %i[app host user password] => [] do |_t, args|
   require 'algosec-sdk'
@@ -16,9 +18,9 @@ task :e2e, %i[app host user password] => [] do |_t, args|
   client = ALGOSEC_SDK::Client.new(options)
   client.login
 
-  NEW_FLOW_NAME = 'test-flow-name'.freeze
-  NETWORK_OBJECT_IP = '192.168.123.124'.freeze
-  NETWORK_SERVICE_NAME = 'TCP/202'.freeze
+  NEW_FLOW_NAME = 'test-flow-name'
+  NETWORK_OBJECT_IP = '192.168.123.124'
+  NETWORK_SERVICE_NAME = 'TCP/202'
   NETWORK_SERVICE_DEFINITION = [%w[tcp 202]].freeze
 
   puts '### END-TO-END INTEGRATION STARTED ###'

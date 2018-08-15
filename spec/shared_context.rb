@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # General context for unit testing:
 RSpec.shared_context 'shared context', a: :b do
   before :each do
