@@ -1,6 +1,6 @@
 # See default at https://github.com/bbatsov/rubocop/blob/master/config/default.yml
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.2
 
 Metrics/ClassLength:
   Max: 200
@@ -9,7 +9,7 @@ Metrics/LineLength:
   Max: 120
 
 Metrics/ModuleLength:
-  Max: 200
+  Max: 220
 
 Metrics/ParameterLists:
   Max: 6

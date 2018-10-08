@@ -6,19 +6,19 @@ require 'ipaddress'
 
 module ALGOSEC_SDK
   module NetworkObjectType
-    HOST = 'Host'
-    RANGE = 'Range'
-    GROUP = 'Group'
-    ABSTRACT = 'Abstract'
+    HOST = 'Host'.freeze
+    RANGE = 'Range'.freeze
+    GROUP = 'Group'.freeze
+    ABSTRACT = 'Abstract'.freeze
   end
 end
 
 module ALGOSEC_SDK
   module NetworkObjectSearchType
-    INTERSECT = 'INTERSECT'
-    CONTAINED = 'CONTAINED'
-    CONTAINING = 'CONTAINING'
-    EXACT = 'EXACT'
+    INTERSECT = 'INTERSECT'.freeze
+    CONTAINED = 'CONTAINED'.freeze
+    CONTAINING = 'CONTAINING'.freeze
+    EXACT = 'EXACT'.freeze
   end
 end
 
@@ -30,6 +30,41 @@ module ALGOSEC_SDK
     # @return [Array<Hash>] flows
     def login
       response_handler(rest_post('/BusinessFlow/rest/v1/login'))
+    end
+
+    # Create an application
+    # @param [String] name The application's name.
+    # @param [Array<String>] custom_fields Existing custom fields to assign to the application.
+    # @param [Array<String>] contacts Existing contacts to assign to the application.
+    # @param [Array<String>] labels Existing labels to assign to the application.
+    # @param [Array<String>] flows The flows to add to the application upon creation.
+    # @raise [RuntimeError] if the request failed
+    # @return Newly created Application object
+    def create_application(
+      name,
+      custom_fields = [],
+      contacts = [],
+      labels = [],
+      flows = []
+    )
+      new_application = {
+        name: name,
+        custom_fields: custom_fields,
+        contacts: contacts,
+        labels: labels,
+        flows: flows
+      }
+      response = rest_post('/BusinessFlow/rest/v1/applications/new', body: new_application)
+      response_handler(response)
+    end
+
+    # Decommission an application
+    # @param [String] app_revision_id
+    # @raise [RuntimeError] if the request failed
+    # @return true
+    def decommission_application(app_revision_id)
+      response = rest_post("/BusinessFlow/rest/v1/applications/#{app_revision_id}/decommission")
+      response_handler(response)
     end
 
     # Get list of application flows for an application revision id
