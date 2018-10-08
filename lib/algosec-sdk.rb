@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'algosec-sdk/version'
 require_relative 'algosec-sdk/client'
 require_relative 'algosec-sdk/exceptions'

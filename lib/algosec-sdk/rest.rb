@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'uri'
 require 'net/http'
 require 'openssl'
@@ -57,7 +59,6 @@ module ALGOSEC_SDK
     rescue SocketError => e
       msg = "Failed to connect to AlgoSec host #{@host}!\n"
       @logger.error msg
-      e.message.prepend(msg)
       raise e
     end
 

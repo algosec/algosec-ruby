@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 require_relative 'flow_comparisons'
 require 'set'
 require 'ipaddress'
 
 module ALGOSEC_SDK
   module NetworkObjectType
-    HOST = 'Host'.freeze
-    RANGE = 'Range'.freeze
-    GROUP = 'Group'.freeze
-    ABSTRACT = 'Abstract'.freeze
+    HOST = 'Host'
+    RANGE = 'Range'
+    GROUP = 'Group'
+    ABSTRACT = 'Abstract'
   end
 end
 
 module ALGOSEC_SDK
   module NetworkObjectSearchType
-    INTERSECT = 'INTERSECT'.freeze
-    CONTAINED = 'CONTAINED'.freeze
-    CONTAINING = 'CONTAINING'.freeze
-    EXACT = 'EXACT'.freeze
+    INTERSECT = 'INTERSECT'
+    CONTAINED = 'CONTAINED'
+    CONTAINING = 'CONTAINING'
+    EXACT = 'EXACT'
   end
 end
 
