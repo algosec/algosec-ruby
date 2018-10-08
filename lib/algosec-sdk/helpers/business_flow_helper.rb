@@ -30,6 +30,41 @@ module ALGOSEC_SDK
       response_handler(rest_post('/BusinessFlow/rest/v1/login'))
     end
 
+    # Create an application
+    # @param [String] name The application's name.
+    # @param [Array<String>] custom_fields Existing custom fields to assign to the application.
+    # @param [Array<String>] contacts Existing contacts to assign to the application.
+    # @param [Array<String>] labels Existing labels to assign to the application.
+    # @param [Array<String>] flows The flows to add to the application upon creation.
+    # @raise [RuntimeError] if the request failed
+    # @return Newly created Application object
+    def create_application(
+      name,
+      custom_fields = [],
+      contacts = [],
+      labels = [],
+      flows = []
+    )
+      new_application = {
+        name: name,
+        custom_fields: custom_fields,
+        contacts: contacts,
+        labels: labels,
+        flows: flows
+      }
+      response = rest_post('/BusinessFlow/rest/v1/applications/new', body: new_application)
+      response_handler(response)
+    end
+
+    # Decommission an application
+    # @param [String] app_revision_id
+    # @raise [RuntimeError] if the request failed
+    # @return true
+    def decommission_application(app_revision_id)
+      response = rest_post("/BusinessFlow/rest/v1/applications/#{app_revision_id}/decommission")
+      response_handler(response)
+    end
+
     # Get list of application flows for an application revision id
     # @param [String, Symbol] app_revision_id
     # @raise [RuntimeError] if the request failed

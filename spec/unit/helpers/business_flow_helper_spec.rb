@@ -10,6 +10,60 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       @client.login
     end
   end
+  describe '#create_application#' do
+    it 'makes a POST rest call' do
+      new_app = {
+        name: 'application-name',
+        custom_fields: [{ name: 'field1', value: 'value1' }, { name: 'field2', value: 'value2' }],
+        contacts: [{ email: 'email1', role: 'role1' }, { email: 'email2', role: 'role2' }],
+        labels: %w[label1 label2],
+        flows: [{ name: 'flow-name1' }, { name: 'flow-name2' }]
+      }
+      fake_response = FakeResponse.new(new_app)
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/new',
+        body: new_app
+      ).and_return(fake_response)
+      ret_val = @client.create_application(
+        'application-name',
+        [{ name: 'field1', value: 'value1' }, { name: 'field2', value: 'value2' }],
+        [{ email: 'email1', role: 'role1' }, { email: 'email2', role: 'role2' }],
+        %w[label1 label2],
+        [{ name: 'flow-name1' }, { name: 'flow-name2' }]
+      )
+      expect(ret_val.to_json).to eq(new_app.to_json)
+    end
+    it 'makes a POST call with default values' do
+      new_app = {
+        name: 'application-name',
+        custom_fields: [],
+        contacts: [],
+        labels: [],
+        flows: []
+      }
+      fake_response = FakeResponse.new(new_app)
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/new',
+        body: new_app
+      ).and_return(fake_response)
+      ret_val = @client.create_application('application-name')
+      expect(ret_val.to_json).to eq(new_app.to_json)
+    end
+  end
+  describe '#delete_application_flow#' do
+    it 'makes a POST rest call' do
+      change_application_response = {
+        Application: 'application-obj',
+        ChangeRequest: 'change-request-object'
+      }
+      fake_response = FakeResponse.new(change_application_response)
+      expect(@client).to receive(:rest_post).with(
+        '/BusinessFlow/rest/v1/applications/application-id/decommission'
+      ).and_return(fake_response)
+      ret_val = @client.decommission_application('application-id')
+      expect(ret_val.to_json).to eq(change_application_response.to_json)
+    end
+  end
   describe '#get_application_flows#' do
     it 'makes a GET rest call' do
       # rubocop:disable Style/NumericLiterals
