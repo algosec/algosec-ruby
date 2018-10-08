@@ -6,19 +6,19 @@ require 'ipaddress'
 
 module ALGOSEC_SDK
   module NetworkObjectType
-    HOST = 'Host'
-    RANGE = 'Range'
-    GROUP = 'Group'
-    ABSTRACT = 'Abstract'
+    HOST = 'Host'.freeze
+    RANGE = 'Range'.freeze
+    GROUP = 'Group'.freeze
+    ABSTRACT = 'Abstract'.freeze
   end
 end
 
 module ALGOSEC_SDK
   module NetworkObjectSearchType
-    INTERSECT = 'INTERSECT'
-    CONTAINED = 'CONTAINED'
-    CONTAINING = 'CONTAINING'
-    EXACT = 'EXACT'
+    INTERSECT = 'INTERSECT'.freeze
+    CONTAINED = 'CONTAINED'.freeze
+    CONTAINING = 'CONTAINING'.freeze
+    EXACT = 'EXACT'.freeze
   end
 end
 
