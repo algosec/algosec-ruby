@@ -126,6 +126,27 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       expect(flows).to eq(body)
     end
   end
+  describe '#get_application_by_name#' do
+    it 'makes a GET rest call' do
+      body = {
+        "revisionID": 372,
+        "applicationID": 348,
+        "name": 'TEST',
+        "createdDate": 1_530_039_923_359,
+        "revisionStatus": 'Draft',
+        "lifecyclePhase": 'Testing',
+        "connectivityStatus": 'No connectivity information',
+        "lastUpdateDate": 1_531_509_201_690,
+        "vulnerabilityScore": 80
+      }
+      fake_response = FakeResponse.new(body)
+      expect(@client).to receive(:rest_get).with(
+        '/BusinessFlow/rest/v1/applications/name/application-name'
+      ).and_return(fake_response)
+      application = @client.get_application_by_name('application-name')
+      expect(application).to eq(body)
+    end
+  end
   describe '#get_application_flows_hash#' do
     it 'convert the flows from server to hash from name to flow data' do
       app_revision_id = anything
@@ -200,16 +221,33 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
       expect(ret_val.to_json).to eq(new_flow.to_json)
     end
   end
+  describe '#get_applications#' do
+    it 'makes a GET rest call' do
+      applications = [{ 'name' => 'app1' }, { 'name' => 'app2' }]
+      fake_response = FakeResponse.new(applications)
+      expect(@client).to receive(:rest_get).with(
+        '/BusinessFlow/rest/v1/applications/'
+      ).and_return(fake_response)
+      result = @client.get_applications
+      expect(result).to eq(applications)
+    end
+  end
   describe '#get_app_revision_id_by_name#' do
     it 'makes a GET rest call' do
       app_revision_id = 410
-      body = { 'revisionID' => app_revision_id }
-      fake_response = FakeResponse.new(body)
-      expect(@client).to receive(:rest_get).with(
-        '/BusinessFlow/rest/v1/applications/name/application-name'
-      ).and_return(fake_response)
+      app = { 'revisionID' => app_revision_id }
+      expect(@client).to receive(:get_application_by_name).with('application-name').and_return(app)
       app_revision = @client.get_app_revision_id_by_name('application-name')
       expect(app_revision).to eq(app_revision_id)
+    end
+  end
+  describe '#get_app_id_by_name#' do
+    it 'makes a GET rest call' do
+      app_id = 410
+      app = { 'applicationId' => app_id }
+      expect(@client).to receive(:get_application_by_name).with('application-name').and_return(app)
+      app = @client.get_app_id_by_name('application-name')
+      expect(app).to eq(app_id)
     end
   end
   describe '#apply_application_draft#' do
