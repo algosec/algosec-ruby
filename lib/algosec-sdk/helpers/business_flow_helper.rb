@@ -175,14 +175,37 @@ module ALGOSEC_SDK
       requested_flow
     end
 
+    # Get all applications
+    # @raise [RuntimeError] if the request failed
+    # @return [Array<Hash>] application objects
+    def get_applications
+      response = rest_get('/BusinessFlow/rest/v1/applications/')
+      response_handler(response)
+    end
+
+    # Get application by name
+    # @param [String, Symbol] app_name
+    # @raise [RuntimeError] if the request failed
+    # @return [Hash] application object
+    def get_application_by_name(app_name)
+      response = rest_get("/BusinessFlow/rest/v1/applications/name/#{app_name}")
+      response_handler(response)
+    end
+
     # Get latest application revision id by application name
     # @param [String, Symbol] app_name
     # @raise [RuntimeError] if the request failed
     # @return [Boolean] application revision id
     def get_app_revision_id_by_name(app_name)
-      response = rest_get("/BusinessFlow/rest/v1/applications/name/#{app_name}")
-      app = response_handler(response)
-      app['revisionID']
+      get_application_by_name(app_name)['revisionID']
+    end
+
+    # Get application id by it's name
+    # @param [String, Symbol] app_name
+    # @raise [RuntimeError] if the request failed
+    # @return [Boolean] application id
+    def get_app_id_by_name(app_name)
+      get_application_by_name(app_name)['applicationId']
     end
 
     # Apply application draft
