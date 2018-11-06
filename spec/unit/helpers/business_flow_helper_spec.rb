@@ -331,7 +331,7 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         allow(@client).to receive(:create_network_object).and_return('created_object')
         create_missing_objects
       end
-      it 'creates the object if it was not found by search' do
+      it 'creates the object if there are no search results' do
         expect(@client).to receive(:search_network_object).with(
           missing_object,
           ALGOSEC_SDK::NetworkObjectSearchType::EXACT
@@ -341,8 +341,20 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
         ).and_return('created_object')
         expect(create_missing_objects).to eq ['created_object']
       end
+      it 'creates the object if it was not found by exact name in the search results' do
+        expect(@client).to receive(:search_network_object).with(
+          missing_object,
+          ALGOSEC_SDK::NetworkObjectSearchType::EXACT
+        ).and_return([{ 'name' => 'some-other-name-for-the-object' }])
+        expect(@client).to receive(:create_network_object).with(
+          missing_object_type, missing_object, missing_object
+        ).and_return('created_object')
+        expect(create_missing_objects).to eq ['created_object']
+      end
       it 'avoids object creation if it is found' do
-        expect(@client).to receive(:search_network_object).with(anything, anything).and_return([anything])
+        expect(@client).to receive(:search_network_object).with(anything, anything).and_return(
+          [{ 'name' => missing_object }]
+        )
         expect(@client).not_to receive(:create_network_object)
         expect(create_missing_objects).to eq []
       end
