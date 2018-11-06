@@ -366,20 +366,14 @@ module ALGOSEC_SDK
       # TODO: Add unitests that objects are being create only once (if the same object is twice in the incoming list)
       network_object_names = Set.new(network_object_names)
       ipv4_or_subnet_objects = network_object_names.map do |object_name|
-        begin
-          IPAddress.parse object_name
-          search_result = search_network_object(object_name, NetworkObjectSearchType::EXACT)
-          # If no object was found in search, we'll count this object for creation
-          search_result.empty? ? object_name : nil
-        rescue ArgumentError
-          # The parsed object name was not IP Address or IP Subnet, ignore it
-          nil
+        if get_network_object_type(object_name)
+          search_network_object(object_name, NetworkObjectSearchType::EXACT).empty? ? object_name : nil
         end
       end.compact
 
       # Create all the objects. If the error from the server tells us that the object already exists, ignore the error
       ipv4_or_subnet_objects.map do |ipv4_or_subnet|
-        create_network_object(NetworkObjectType::HOST, ipv4_or_subnet, ipv4_or_subnet)
+        create_network_object(get_network_object_type(ipv4_or_subnet), ipv4_or_subnet, ipv4_or_subnet)
       end.compact
     end
 
@@ -402,6 +396,20 @@ module ALGOSEC_SDK
           raise e if e.to_s.index('Service name already exists').nil?
         end
       end.compact
+    end
+
+    private
+
+    def get_network_object_type(object_name)
+      # handle IP ranges
+      if object_name.split('-').size == 2
+        object_name.split('-').all? { |ip| !get_network_object_type(ip).nil? } ? NetworkObjectType::RANGE : nil
+      else
+        ip_parse = IPAddress.parse object_name
+        ip_parse.size == 1 ? NetworkObjectType::HOST : NetworkObjectType::RANGE
+      end
+    rescue ArgumentError
+      nil
     end
   end
 end

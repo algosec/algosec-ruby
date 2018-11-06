@@ -320,46 +320,67 @@ RSpec.describe ALGOSEC_SDK::BusinessFlowHelper do
     end
   end
   describe '#create_missing_network_objects#' do
-    it 'no object is created if it is found by search' do
-      object_name = '192.168.1.1'
-      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([anything])
-      created_objects = @client.create_missing_network_objects([object_name])
-      expect(created_objects).to eq([])
+    let(:missing_object) {}
+    let(:create_missing_objects) { @client.create_missing_network_objects([missing_object]) }
+
+    shared_examples_for 'IP/CIDR/Range missing objects' do
+      it 'searches for the object' do
+        expect(@client).to receive(:search_network_object).with(
+          missing_object, ALGOSEC_SDK::NetworkObjectSearchType::EXACT
+        ).and_return([])
+        allow(@client).to receive(:create_network_object).and_return('created_object')
+        create_missing_objects
+      end
+      it 'creates the object if it was not found by search' do
+        expect(@client).to receive(:search_network_object).with(
+          missing_object,
+          ALGOSEC_SDK::NetworkObjectSearchType::EXACT
+        ).and_return([])
+        expect(@client).to receive(:create_network_object).with(
+          missing_object_type, missing_object, missing_object
+        ).and_return('created_object')
+        expect(create_missing_objects).to eq ['created_object']
+      end
+      it 'avoids object creation if it is found' do
+        expect(@client).to receive(:search_network_object).with(anything, anything).and_return([anything])
+        expect(@client).not_to receive(:create_network_object)
+        expect(create_missing_objects).to eq []
+      end
     end
-    it 'only ip-like object names are being searched' do
-      object_name1 = '192.168.1.1'
-      object_name2 = 'businessflowNamedObject'
-      fake_created_object = { name: object_name1 }
-      expect(@client).to receive(:search_network_object).with(
-        object_name1,
-        ALGOSEC_SDK::NetworkObjectSearchType::EXACT
-      ).and_return([])
-      expect(@client).to receive(:create_network_object).with(
-        ALGOSEC_SDK::NetworkObjectType::HOST, object_name1, object_name1
-      ).and_return(fake_created_object)
-      created_objects = @client.create_missing_network_objects([object_name1, object_name2])
-      expect(created_objects).to eq([fake_created_object])
+    context 'when the missing object is an IP' do
+      let(:missing_object) { '192.168.1.1' }
+      let(:missing_object_type) { ALGOSEC_SDK::NetworkObjectType::HOST }
+      it_behaves_like 'IP/CIDR/Range missing objects'
     end
-    it 'create objects and fail due to unknown exception from server' do
-      object_name = '192.168.1.1'
-      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([])
-      expect(@client).to receive(:create_network_object).with(
-        ALGOSEC_SDK::NetworkObjectType::HOST, object_name, object_name
-      ).and_raise(ALGOSEC_SDK::BadRequest, 'Unknown Error')
-      expect do
-        @client.create_missing_network_objects([object_name])
-      end.to raise_error(ALGOSEC_SDK::BadRequest)
+    context 'when the missing object is a CIDR' do
+      let(:missing_object) { '192.168.1.1/1' }
+      let(:missing_object_type) { ALGOSEC_SDK::NetworkObjectType::RANGE }
+      it_behaves_like 'IP/CIDR/Range missing objects'
     end
-    it 'only ip-like object names are created' do
-      object_name1 = '192.168.1.1'
-      object_name2 = 'businessflowNamedObject'
-      fake_created_object = { name: object_name1 }
-      expect(@client).to receive(:search_network_object).with(anything, anything).and_return([])
-      expect(@client).to receive(:create_network_object).with(
-        ALGOSEC_SDK::NetworkObjectType::HOST, object_name1, object_name1
-      ).and_return(fake_created_object)
-      created_objects = @client.create_missing_network_objects([object_name1, object_name2])
-      expect(created_objects).to eq([fake_created_object])
+    context 'when the missing object is a Range' do
+      let(:missing_object) { '192.168.1.1-192.168.2.2' }
+      let(:missing_object_type) { ALGOSEC_SDK::NetworkObjectType::RANGE }
+      it_behaves_like 'IP/CIDR/Range missing objects'
+    end
+    context 'when the missing object is neither IP/Range/CIDR' do
+      let(:missing_object) { 'some-non-ip-object-name' }
+
+      it 'does not search for it' do
+        expect(@client).not_to receive(:search_network_object)
+        create_missing_objects
+      end
+      it 'does not create it' do
+        expect(@client).not_to receive(:create_network_object)
+        create_missing_objects
+      end
+    end
+    context 'when there is unexpected server error upon object creation' do
+      let(:missing_object) { '192.168.1.1' }
+      it 'raises an exception' do
+        allow(@client).to receive(:search_network_object).and_return([])
+        expect(@client).to receive(:create_network_object).and_raise(ALGOSEC_SDK::BadRequest, 'Unknown Error')
+        expect { create_missing_objects }.to raise_error(ALGOSEC_SDK::BadRequest)
+      end
     end
   end
   describe '#create_missing_services#' do
