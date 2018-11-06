@@ -366,8 +366,14 @@ module ALGOSEC_SDK
       # TODO: Add unitests that objects are being create only once (if the same object is twice in the incoming list)
       network_object_names = Set.new(network_object_names)
       ipv4_or_subnet_objects = network_object_names.map do |object_name|
-        if get_network_object_type(object_name)
-          search_network_object(object_name, NetworkObjectSearchType::EXACT).empty? ? object_name : nil
+        next unless get_network_object_type(object_name)
+        search_results = search_network_object(object_name, NetworkObjectSearchType::EXACT)
+        if search_results.empty?
+          # nothing was found, mark the object for creation
+          object_name
+        else
+          # if no object named the same way, mark it for creation
+          search_results.any? { |result| result['name'] == object_name } ? nil : object_name
         end
       end.compact
 

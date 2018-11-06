@@ -9,7 +9,7 @@ Metrics/LineLength:
   Max: 120
 
 Metrics/ModuleLength:
-  Max: 220
+  Max: 300
 
 Metrics/ParameterLists:
   Max: 6
